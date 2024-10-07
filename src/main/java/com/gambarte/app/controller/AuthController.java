@@ -3,8 +3,8 @@ package com.gambarte.app.controller;
 import com.gambarte.app.dto.UserDto;
 import com.gambarte.app.model.User;
 import com.gambarte.app.repository.UserRepository;
-import com.gambarte.app.service.EncryptionService;
 import com.gambarte.app.util.ApiResponse;
+import com.gambarte.app.util.EncryptionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,9 +73,10 @@ public class AuthController {
             User existingUser = userRepository.findByUsername(loginRequest.getUsername())
                     .orElse(null);
             
-            //Test
-            EncryptionService encryptionService = new EncryptionService();
-            var test = encryptionService.decryptData(loginRequest.getPassword());
+            //Test 
+            String decryptedPassword = EncryptionUtils.decrypt(loginRequest.getPassword());
+            //String decryptedPassword = EncryptionUtils.decrypt("w9oKTqKTtvBuRUVbhQP/qw==");
+            var prueba = "La contraseña desencriptada es: " + decryptedPassword;
 
             // Si no existe el usuario, retornar error
             if (existingUser == null) {
@@ -87,7 +88,8 @@ public class AuthController {
             }
 
             // Verificar si la contraseña es correcta
-            boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), existingUser.getPassword());
+            //boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), existingUser.getPassword());
+            boolean passwordMatches = passwordEncoder.matches(decryptedPassword, existingUser.getPassword());
 
             // Si la contraseña no coincide, retornar error
             if (!passwordMatches) {
